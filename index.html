@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Onde Meu Carro">
+<meta name="theme-color" content="#1a1a2e">
+<title>Onde Meu Carro?</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f1a;
+    color: #f0f0f5;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 32px;
+  }
+
+  header {
+    width: 100%;
+    background: #1a1a2e;
+    padding: 20px 24px 16px;
+    text-align: center;
+    border-bottom: 1px solid #2a2a45;
+  }
+
+  header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #c8b8f8;
+    letter-spacing: 0.3px;
+  }
+
+  header p {
+    font-size: 13px;
+    color: #7070a0;
+    margin-top: 3px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Seção salva */
+  .saved-card {
+    background: #1a1a2e;
+    border: 1px solid #2e2e50;
+    border-radius: 16px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .saved-card.visible { display: flex; }
+
+  .saved-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7070a0;
+  }
+
+  .saved-location {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .saved-code {
+    font-size: 52px;
+    font-weight: 700;
+    color: #c8b8f8;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .saved-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .saved-andar {
+    font-size: 18px;
+    font-weight: 500;
+    color: #f0f0f5;
+  }
+
+  .saved-direcao {
+    font-size: 14px;
+    color: #9090c0;
+  }
+
+  .saved-hora {
+    font-size: 12px;
+    color: #555580;
+    padding-top: 4px;
+    border-top: 1px solid #2a2a45;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .clear-btn, .wa-btn {
+    background: none;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .clear-btn {
+    border: 1px solid #3a3a60;
+    color: #9090c0;
+  }
+
+  .clear-btn:active { background: #2a2a45; }
+
+  .wa-btn {
+    border: 1px solid #1a5c35;
+    color: #4ade80;
+  }
+
+  .wa-btn:active { background: #0f3020; }
+
+  /* Painel de recuperação */
+  .recover-panel {
+    background: #1a1a2e;
+    border: 1px solid #2e2e50;
+    border-radius: 16px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .recover-panel.visible { display: flex; }
+
+  .recover-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #7070a0;
+  }
+
+  .recover-hint {
+    font-size: 13px;
+    color: #8080b0;
+    line-height: 1.5;
+  }
+
+  .recover-input {
+    width: 100%;
+    background: #0f0f1a;
+    border: 1px solid #2e2e50;
+    border-radius: 10px;
+    color: #f0f0f5;
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .recover-input:focus { border-color: #7b6bc8; }
+
+  .recover-btn {
+    background: #3b2d7a;
+    border: none;
+    color: #e8d8ff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .recover-btn:active { background: #4a3a8a; }
+
+  /* Formulário */
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #7070a0;
+    margin-bottom: 10px;
+  }
+
+  /* Seletor de andar */
+  .floor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .floor-btn {
+    background: #1a1a2e;
+    border: 1px solid #2e2e50;
+    color: #9090c0;
+    font-size: 22px;
+    font-weight: 600;
+    padding: 16px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+
+  .floor-btn:active { transform: scale(0.95); }
+
+  .floor-btn.selected {
+    background: #3b2d7a;
+    border-color: #7b6bc8;
+    color: #e8d8ff;
+  }
+
+  /* Seletor de direção */
+  .direction-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .dir-btn {
+    background: #1a1a2e;
+    border: 1px solid #2e2e50;
+    color: #9090c0;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 16px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+
+  .dir-btn .dir-icon { font-size: 28px; line-height: 1; }
+  .dir-btn .dir-code { font-size: 13px; font-weight: 600; color: #555580; letter-spacing: 0.5px; }
+  .dir-btn:active { transform: scale(0.95); }
+
+  .dir-btn.selected {
+    background: #3b2d7a;
+    border-color: #7b6bc8;
+    color: #e8d8ff;
+  }
+
+  .dir-btn.selected .dir-code { color: #a898e8; }
+
+  /* Obs opcional */
+  .obs-input {
+    width: 100%;
+    background: #1a1a2e;
+    border: 1px solid #2e2e50;
+    border-radius: 12px;
+    color: #f0f0f5;
+    font-size: 15px;
+    padding: 14px 16px;
+    outline: none;
+    font-family: inherit;
+    resize: none;
+  }
+
+  .obs-input::placeholder { color: #444470; }
+  .obs-input:focus { border-color: #7b6bc8; }
+
+  /* Botão salvar */
+  .save-btn {
+    width: 100%;
+    background: #5b45c8;
+    border: none;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 18px;
+    border-radius: 14px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+
+  .save-btn:active { transform: scale(0.97); background: #4a35b8; }
+  .save-btn:disabled { background: #2e2e50; color: #555580; cursor: default; transform: none; }
+
+  /* Preview código */
+  .preview-code {
+    text-align: center;
+    font-size: 13px;
+    color: #555580;
+  }
+
+  .preview-code span {
+    font-weight: 700;
+    font-size: 20px;
+    color: #9888e8;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #3b2d7a;
+    color: #e8d8ff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #7b6bc8;
+    opacity: 0;
+    transition: all 0.25s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Obs saved */
+  .saved-obs {
+    font-size: 13px;
+    color: #8080b0;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚗 Onde Meu Carro?</h1>
+  <p>Marque o local agora, não esqueça depois</p>
+</header>
+
+<div class="container">
+
+  <!-- Card do local salvo -->
+  <div class="saved-card" id="savedCard">
+    <div class="saved-label">📍 Carro Estacionado</div>
+    <div class="saved-location">
+      <div class="saved-code" id="savedCode">—</div>
+      <div class="saved-details">
+        <div class="saved-andar" id="savedAndar">—</div>
+        <div class="saved-direcao" id="savedDirecao">—</div>
+      </div>
+    </div>
+    <div class="saved-obs" id="savedObs" style="display:none"></div>
+    <div class="saved-hora" id="savedHora">—</div>
+    <div class="card-actions">
+      <button class="wa-btn" onclick="sendWhatsApp()">WhatsApp 📤</button>
+      <button class="clear-btn" onclick="clearSaved()">✕ Limpar</button>
+    </div>
+  </div>
+
+  <!-- Painel de recuperação -->
+  <div class="recover-panel" id="recoverPanel">
+    <div class="recover-label">🔍 Recuperar local</div>
+    <div class="recover-hint">Dados não encontrados. Cole aqui a mensagem que você enviou pelo WhatsApp:</div>
+    <input class="recover-input" id="recoverInput" type="text" placeholder="ex: 🚗 Carro: 3FD — 3º andar, Fundos">
+    <button class="recover-btn" onclick="recoverFromText()">Recuperar</button>
+  </div>
+
+  <!-- Formulário -->
+  <div class="form-section">
+
+    <div>
+      <div class="field-label">Andar</div>
+      <div class="floor-grid">
+        <button class="floor-btn" onclick="selectFloor(this, 1)">1</button>
+        <button class="floor-btn" onclick="selectFloor(this, 2)">2</button>
+        <button class="floor-btn" onclick="selectFloor(this, 3)">3</button>
+        <button class="floor-btn" onclick="selectFloor(this, 4)">4</button>
+        <button class="floor-btn" onclick="selectFloor(this, 5)">5</button>
+        <button class="floor-btn" onclick="selectFloor(this, 6)">6</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label">Direção / Setor</div>
+      <div class="direction-grid">
+        <button class="dir-btn" onclick="selectDir(this, 'D', 'Direita')">
+          <span class="dir-icon">➡️</span>
+          <span>Direita</span>
+          <span class="dir-code">D</span>
+        </button>
+        <button class="dir-btn" onclick="selectDir(this, 'E', 'Esquerda')">
+          <span class="dir-icon">⬅️</span>
+          <span>Esquerda</span>
+          <span class="dir-code">E</span>
+        </button>
+        <button class="dir-btn" onclick="selectDir(this, 'FR', 'Frente')">
+          <span class="dir-icon">⬆️</span>
+          <span>Frente</span>
+          <span class="dir-code">FR</span>
+        </button>
+        <button class="dir-btn" onclick="selectDir(this, 'FD', 'Fundos')">
+          <span class="dir-icon">⬇️</span>
+          <span>Fundos</span>
+          <span class="dir-code">FD</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label">Observação (opcional)</div>
+      <textarea class="obs-input" id="obsInput" rows="2" placeholder="ex: perto do pilar B, vaga 42..."></textarea>
+    </div>
+
+    <div class="preview-code" id="previewCode">Selecione o andar e a direção</div>
+
+    <button class="save-btn" id="saveBtn" onclick="saveLocation()" disabled>
+      Salvar Local
+    </button>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Local salvo!</div>
+
+<script>
+  let floor = null;
+  let dir = null;
+  let dirLabel = null;
+
+  const DIRS = { D: 'Direita', E: 'Esquerda', FR: 'Frente', FD: 'Fundos' };
+
+  function selectFloor(el, num) {
+    document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    floor = num;
+    updatePreview();
+  }
+
+  function selectDir(el, code, label) {
+    document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    dir = code;
+    dirLabel = label;
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const preview = document.getElementById('previewCode');
+    const btn = document.getElementById('saveBtn');
+    if (floor && dir) {
+      preview.innerHTML = `Código: <span>${floor}${dir}</span>`;
+      btn.disabled = false;
+    } else if (floor) {
+      preview.textContent = `Andar ${floor} — selecione a direção`;
+      btn.disabled = true;
+    } else if (dir) {
+      preview.textContent = `${dirLabel} — selecione o andar`;
+      btn.disabled = true;
+    } else {
+      preview.textContent = 'Selecione o andar e a direção';
+      btn.disabled = true;
+    }
+  }
+
+  function buildMessage(data) {
+    let msg = `🚗 Carro: ${data.floor}${data.dir} — ${data.floor}º andar, ${data.dirLabel}`;
+    if (data.obs) msg += ` | ${data.obs}`;
+    msg += ` | ${data.data} ${data.hora}`;
+    return msg;
+  }
+
+  function saveLocation() {
+    if (!floor || !dir) return;
+    const obs = document.getElementById('obsInput').value.trim();
+    const now = new Date();
+    const hora = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const data = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+    const saved = { floor, dir, dirLabel, obs, hora, data };
+    localStorage.setItem('carLocation', JSON.stringify(saved));
+    showSaved(saved);
+    document.getElementById('recoverPanel').classList.remove('visible');
+
+    const msg = buildMessage(saved);
+    const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  }
+
+  function sendWhatsApp() {
+    const stored = localStorage.getItem('carLocation');
+    if (!stored) return;
+    const data = JSON.parse(stored);
+    const msg = buildMessage(data);
+    const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  }
+
+  function recoverFromText() {
+    const text = document.getElementById('recoverInput').value.trim();
+    const match = text.match(/(\d)(D|E|FR|FD)/);
+    if (!match) { showToast('❌ Formato não reconhecido'); return; }
+    const DIRS = { D: 'Direita', E: 'Esquerda', FR: 'Frente', FD: 'Fundos' };
+    const f = parseInt(match[1]);
+    const d = match[2];
+    const now = new Date();
+    const saved = {
+      floor: f, dir: d, dirLabel: DIRS[d],
+      obs: '', hora: '--:--',
+      data: now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    };
+    localStorage.setItem('carLocation', JSON.stringify(saved));
+    showSaved(saved);
+    document.getElementById('recoverPanel').classList.remove('visible');
+    showToast('✅ Local recuperado!');
+  }
+
+  function showSaved(data) {
+    document.getElementById('savedCode').textContent = `${data.floor}${data.dir}`;
+    document.getElementById('savedAndar').textContent = `${data.floor}º andar`;
+    document.getElementById('savedDirecao').textContent = data.dirLabel;
+    document.getElementById('savedHora').textContent = `Salvo em ${data.data} às ${data.hora}`;
+
+    const obsEl = document.getElementById('savedObs');
+    if (data.obs) {
+      obsEl.textContent = `"${data.obs}"`;
+      obsEl.style.display = 'block';
+    } else {
+      obsEl.style.display = 'none';
+    }
+
+    document.getElementById('savedCard').classList.add('visible');
+  }
+
+  function clearSaved() {
+    localStorage.removeItem('carLocation');
+    document.getElementById('savedCard').classList.remove('visible');
+    showToast('🗑️ Local apagado');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // Restaurar ao abrir
+  const stored = localStorage.getItem('carLocation');
+  if (stored) {
+    try { showSaved(JSON.parse(stored)); } catch(e) { document.getElementById('recoverPanel').classList.add('visible'); }
+  } else {
+    document.getElementById('recoverPanel').classList.add('visible');
+  }
+</script>
+</body>
+</html>
