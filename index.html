@@ -6,9 +6,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Onde Meu Carro">
+<meta name="apple-mobile-web-app-title" content="Onde Estacionei">
 <meta name="theme-color" content="#1a1a2e">
-<title>Onde Meu Carro?</title>
+<title>Onde Estacionei?</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -88,6 +88,14 @@
     letter-spacing: -1px;
   }
 
+  .saved-park {
+    font-size: 30px;
+    font-weight: 700;
+    color: #c8b8f8;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
   .saved-details {
     display: flex;
     flex-direction: column;
@@ -98,6 +106,7 @@
     font-size: 18px;
     font-weight: 500;
     color: #f0f0f5;
+    min-width: 80px;
   }
 
   .saved-direcao {
@@ -106,7 +115,7 @@
   }
 
   .saved-hora {
-    font-size: 12px;
+    font-size: 14px;
     color: #555580;
     padding-top: 4px;
     border-top: 1px solid #2a2a45;
@@ -210,6 +219,14 @@
     letter-spacing: 0.8px;
     color: #7070a0;
     margin-bottom: 10px;
+  }
+  .field-label-mapa {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: #539bf0;
+    margin-left: 10px;
+    cursor: pointer;
   }
 
   /* Seletor de andar */
@@ -357,12 +374,24 @@
     color: #8080b0;
     font-style: italic;
   }
+
+  /* modal que mosta a imagem do mapa */
+  dialog {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    padding: 15px;
+  }
+  /* modal que mosta a imagem do mapa */
+  dialog::backdrop {
+    background-color: rgba(0,0,0,0.5); /* Escurece o fundo da página */
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🚗 Onde Está Meu Carro?</h1>
+  <h1>Onde Estacionei?</h1>
   <p>Marque o local agora, não esqueça depois</p>
 </header>
 
@@ -377,22 +406,23 @@
         <div class="saved-andar" id="savedAndar">—</div>
         <div class="saved-direcao" id="savedDirecao">—</div>
       </div>
+      <div class="saved-park">Parktech Andradas</div>
     </div>
     <div class="saved-obs" id="savedObs" style="display:none"></div>
     <div class="saved-hora" id="savedHora">—</div>
     <div class="card-actions">
-      <button class="wa-btn" onclick="sendWhatsApp()">WhatsApp 📤</button>
+      <!-- <button class="wa-btn" onclick="sendWhatsApp()">WhatsApp 📤</button> -->
       <button class="clear-btn" onclick="clearSaved()">✕ Limpar</button>
     </div>
   </div>
 
   <!-- Painel de recuperação -->
-  <div class="recover-panel" id="recoverPanel">
+  <!-- <div class="recover-panel" id="recoverPanel">
     <div class="recover-label">🔍 Recuperar local</div>
     <div class="recover-hint">Dados não encontrados. Cole aqui a mensagem que você enviou pelo WhatsApp:</div>
     <input class="recover-input" id="recoverInput" type="text" placeholder="ex: 🚗 Carro: 3FD — 3º andar, Fundos">
     <button class="recover-btn" onclick="recoverFromText()">Recuperar</button>
-  </div>
+  </div> -->
 
   <!-- Formulário -->
   <div class="form-section">
@@ -410,7 +440,10 @@
     </div>
 
     <div>
-      <div class="field-label">Direção / Setor</div>
+      <div style="display: flex;">
+        <div class="field-label">Direção / Setor </div>
+        <div class="field-label-mapa" onclick="document.getElementById('modalImagemMapa').showModal()">(Ver Mapa)</div>
+      </div>
       <div class="direction-grid">
         <button class="dir-btn" onclick="selectDir(this, 'D', 'Direita')">
           <span class="dir-icon">➡️</span>
@@ -450,6 +483,18 @@
 </div>
 
 <div class="toast" id="toast">✅ Local salvo!</div>
+
+
+<!-- Estrutura do Modal -->
+<dialog id="modalImagemMapa" style="margin-left: auto; margin-right: auto;">
+  <figure style="text-align: center;">
+      <figcaption>Como se localizar</figcaption>
+      <img src="img/mapa_estacionamento_app.png" alt="Imagem ampliada" width="400">
+  </figure>
+  <div style="display: flex; justify-content: center;">
+    <button onclick="document.getElementById('modalImagemMapa').close()">Fechar</button>
+  </div>
+</dialog>
 
 <script>
   let floor = null;
@@ -508,7 +553,7 @@
     const saved = { floor, dir, dirLabel, obs, hora, data };
     localStorage.setItem('carLocation', JSON.stringify(saved));
     showSaved(saved);
-    document.getElementById('recoverPanel').classList.remove('visible');
+    //document.getElementById('recoverPanel').classList.remove('visible');
 
     const msg = buildMessage(saved);
     const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
@@ -578,7 +623,7 @@
   if (stored) {
     try { showSaved(JSON.parse(stored)); } catch(e) { document.getElementById('recoverPanel').classList.add('visible'); }
   } else {
-    document.getElementById('recoverPanel').classList.add('visible');
+    //document.getElementById('recoverPanel').classList.add('visible');
   }
 </script>
 </body>
