@@ -486,14 +486,14 @@
 
 
 <!-- Estrutura do Modal -->
-<dialog id="modalImagemMapa" style="margin-left: auto; margin-right: auto;">
+<dialog id="modalImagemMapa" style="margin-top:10% ;margin-left: auto; margin-right: auto; max-width: 80%; background-color: #3b2d7a;" onclick="document.getElementById('modalImagemMapa').close()">
   <figure style="text-align: center;">
-      <figcaption>Como se localizar</figcaption>
-      <img src="img/mapa_estacionamento_app.png" alt="Imagem ampliada" width="400">
+      <figcaption style="color: #e8d8ff;">Como se localizar</figcaption>
+      <img src="img/mapa_estacionamento_app.png" alt="Imagem ampliada" width=100%>
   </figure>
-  <div style="display: flex; justify-content: center;">
+  <!-- <div style="display: flex; justify-content: center;">
     <button onclick="document.getElementById('modalImagemMapa').close()">Fechar</button>
-  </div>
+  </div> -->
 </dialog>
 
 <script>
@@ -537,9 +537,11 @@
   }
 
   function buildMessage(data) {
+    const url = "https://www.ondeestacionei.com.br";
     let msg = `🚗 Carro: ${data.floor}${data.dir} — ${data.floor}º andar, ${data.dirLabel}`;
     if (data.obs) msg += ` | ${data.obs}`;
     msg += ` | ${data.data} ${data.hora}`;
+    msg += `\n🔗 Acesse: ${url}`;
     return msg;
   }
 
